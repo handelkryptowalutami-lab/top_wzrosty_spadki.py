@@ -1,0 +1,29 @@
+name: Generuj dzienny raport krypto
+
+on:
+  schedule:
+    - cron: '0 15 * * *'  # uruchamia codziennie o 15:00 UTC = 17:00 czasu polskiego
+  workflow_dispatch:       # pozwala uruchomić ręcznie
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pobierz repozytorium
+        uses: actions/checkout@v3
+
+      - name: Zainstaluj Pythona
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Uruchom skrypt
+        run: python top_wzrosty_spadki.py
+
+      - name: Zapisz wynik w repozytorium
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Raport dzienny $(date +'%Y-%m-%d')" || echo "Brak zmian"
+          git push
